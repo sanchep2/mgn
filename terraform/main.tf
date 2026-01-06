@@ -244,6 +244,7 @@ resource "aws_ssm_association" "update_agent" {
 
   targets {
     key    = "InstanceIds"
-    values = [aws_instance.iis.id, aws_instance.aws_instance.sql.id]
+    # FIXED: removed the extra 'aws_instance'
+    values = [aws_instance.iis.id, aws_instance.sql.id] 
   }
 }
