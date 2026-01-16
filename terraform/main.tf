@@ -140,6 +140,41 @@ resource "aws_security_group_rule" "ingress_self" {
 }
 
 # ------------------------------------------------------------------------
+# Data Source: Get My Public IP
+# ------------------------------------------------------------------------
+data "http" "myip" {
+  url = "https://checkip.amazonaws.com"
+}
+
+# ------------------------------------------------------------------------
+# Security Group Rules (Ingress)
+# ------------------------------------------------------------------------
+
+# Allow HTTP (Port 80)
+resource "aws_security_group_rule" "ingress_http_myip" {
+  type              = "ingress"
+  description       = "Allow HTTP from my Public IP"
+  from_port         = 80
+  to_port           = 80
+  protocol          = "tcp"
+  security_group_id = aws_security_group.source.id
+  
+  # chomp() removes the newline character from the response
+  cidr_blocks       = ["${chomp(data.http.myip.response_body)}/32"]
+}
+
+# Allow RDP (Port 3389)
+resource "aws_security_group_rule" "ingress_rdp_myip" {
+  type              = "ingress"
+  description       = "Allow RDP from my Public IP"
+  from_port         = 3389
+  to_port           = 3389
+  protocol          = "tcp"
+  security_group_id = aws_security_group.source.id
+  
+  cidr_blocks       = ["${chomp(data.http.myip.response_body)}/32"]
+}
+# ------------------------------------------------------------------------
 # IAM Role for SSM
 # ------------------------------------------------------------------------
 
